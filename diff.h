@@ -398,6 +398,9 @@ struct diff_options {
 	struct strmap *additional_path_headers;
 
 	int no_free;
+
+	/* Max number of parallel jobs for submodules */
+	int parallel_jobs;
 };
 
 unsigned diff_filter_bit(char status);
