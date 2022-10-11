@@ -52,6 +52,18 @@ static int no_job(struct child_process *cp,
 	return 0;
 }
 
+static void pipe_output(struct strbuf *out,
+				void *pp_cb,
+				void *pp_task_cb)
+{
+	fprintf(stderr, "%s", out->buf);
+	/*
+	 * Resetting output to show that piped output would print the
+	 * same as other tests without the pipe_output() function set
+	 */
+	strbuf_reset(out);
+}
+
 static int task_finished(int result,
 			 struct strbuf *err,
 			 void *pp_cb,
@@ -437,6 +449,12 @@ int cmd__run_command(int argc, const char **argv)
 		argv += 1;
 		argc -= 1;
 		opts.ungroup = 1;
+	}
+
+	if (!strcmp(argv[1], "--pipe-output")) {
+		argv += 1;
+		argc -= 1;
+		opts.pipe_output = pipe_output;
 	}
 
 	jobs = atoi(argv[2]);

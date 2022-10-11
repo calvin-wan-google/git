@@ -441,6 +441,22 @@ typedef int (*start_failure_fn)(struct strbuf *out,
 				void *pp_task_cb);
 
 /**
+ * This callback is periodically called while child processes are
+ * running and also when a child process finishes.
+ *
+ * "struct strbuf *out" contains the output collected from pp_task_cb
+ * since the last call of this function.
+ *
+ * pp_cb is the callback cookie as passed into run_processes_parallel,
+ * pp_task_cb is the callback cookie as passed into get_next_task_fn.
+ *
+ * This function is incompatible with "ungroup"
+ */
+typedef void (*pipe_output_fn)(struct strbuf *out,
+				void *pp_cb,
+				void *pp_task_cb);
+
+/**
  * This callback is called on every child process that finished processing.
  *
  * See run_processes_parallel() below for a discussion of the "struct
@@ -492,6 +508,12 @@ struct run_process_parallel_opts
 	 * NULL to omit any special handling.
 	 */
 	start_failure_fn start_failure;
+
+	/**
+	 * pipe_output: See pipe_output_fn() above. This should be
+	 * NULL unless process specific output is needed
+	 */
+	pipe_output_fn pipe_output;
 
 	/**
 	 * task_finished: See task_finished_fn() above. This can be

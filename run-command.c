@@ -1689,12 +1689,16 @@ static void pp_buffer_stderr(struct parallel_processes *pp, int output_timeout)
 	}
 }
 
-static void pp_output(struct parallel_processes *pp)
+static void pp_output(struct parallel_processes *pp,
+			const struct run_process_parallel_opts *opts)
 {
 	int i = pp->output_owner;
 
 	if (pp->children[i].state == GIT_CP_WORKING &&
 	    pp->children[i].err.len) {
+		if (opts->pipe_output)
+			opts->pipe_output(&pp->children[i].err, pp->data,
+						pp->children[i].data);
 		strbuf_write(&pp->children[i].err, stderr);
 		strbuf_reset(&pp->children[i].err);
 	}
@@ -1715,6 +1719,10 @@ static int pp_collect_finished(struct parallel_processes *pp,
 			break;
 
 		code = finish_command(&pp->children[i].process);
+
+		if (opts->pipe_output)
+			opts->pipe_output(&pp->children[i].err, pp->data,
+						pp->children[i].data);
 
 		if (opts->task_finished)
 			code = opts->task_finished(code, opts->ungroup ? NULL :
@@ -1803,7 +1811,7 @@ void run_processes_parallel(const struct run_process_parallel_opts *opts)
 				pp.children[i].state = GIT_CP_WAIT_CLEANUP;
 		} else {
 			pp_buffer_stderr(&pp, output_timeout);
-			pp_output(&pp);
+			pp_output(&pp, opts);
 		}
 		code = pp_collect_finished(&pp, opts);
 		if (code) {
