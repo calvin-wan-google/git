@@ -74,8 +74,8 @@ pack.threads::
 	warning. This is meant to reduce packing time on multiprocessor
 	machines. The required amount of memory for the delta search window
 	is however multiplied by the number of threads.
-	Specifying 0 will cause Git to auto-detect the number of CPU's
-	and set the number of threads accordingly.
+	If unset or set to 0, Git will use as many threads as the number of
+	logical cores available. If set to 1, Git will execute sequentially.
 
 pack.indexVersion::
 	Specify the default pack index version.  Valid values are 1 for

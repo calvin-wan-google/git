@@ -83,7 +83,8 @@ fetch.parallel::
 	at a time (submodules, or remotes when the `--multiple` option of
 	linkgit:git-fetch[1] is in effect).
 +
-A value of 0 will give some reasonable default. If unset, it defaults to 1.
+If unset or set to 1, Git will execute sequentially. If set to 0, Git will
+use as many threads as the number of logical cores available.
 +
 For submodules, this setting can be overridden using the `submodule.fetchJobs`
 config setting.

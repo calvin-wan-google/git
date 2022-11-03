@@ -220,8 +220,9 @@ http.sslTry::
 	errors on misconfigured servers.
 
 http.maxRequests::
-	How many HTTP requests to launch in parallel. Can be overridden
-	by the `GIT_HTTP_MAX_REQUESTS` environment variable. Default is 5.
+	Specifies the number of HTTP requests to launch in parallel. Can
+	be overridden by the `GIT_HTTP_MAX_REQUESTS` environment variable.
+	If unset or set to a value less than 1, Git will use 5.
 
 http.minSessions::
 	The number of curl sessions (counted across slots) to be kept across

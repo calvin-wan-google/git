@@ -88,10 +88,10 @@ submodule.propagateBranches::
 	Defaults to false.
 
 submodule.fetchJobs::
-	Specifies how many submodules are fetched/cloned at the same time.
-	A positive integer allows up to that number of submodules fetched
-	in parallel. A value of 0 will give some reasonable default.
-	If unset, it defaults to 1.
+	Specifies the number of submodules to be fetched/cloned at the
+	same time. If unset or set to 1, Git will execute sequentially.
+	If set to 0, Git will use as many threads as the number of
+	logical cores available.
 
 submodule.alternateLocation::
 	Specifies how the submodules obtain alternates when submodules are

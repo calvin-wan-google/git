@@ -17,8 +17,9 @@ grep.extendedRegexp::
 	other than 'default'.
 
 grep.threads::
-	Number of grep worker threads to use. If unset (or set to 0), Git will
-	use as many threads as the number of logical cores available.
+	Specifies the number of grep worker threads to spawn. If unset or set to 0,
+	Git will use as many threads as the number of logical cores available. If
+	If set to 1, Git will execute sequentially.
 
 grep.fullName::
 	If set to true, enable `--full-name` option by default.

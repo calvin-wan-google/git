@@ -23,9 +23,9 @@ checkout.guess::
 	linkgit:git-switch[1] and linkgit:git-checkout[1].
 
 checkout.workers::
-	The number of parallel workers to use when updating the working tree.
-	The default is one, i.e. sequential execution. If set to a value less
-	than one, Git will use as many workers as the number of logical cores
+	Specifies the number of threads to spawn when updating the working tree.
+	If unset or set to 1, Git will execute sequentially. If set to a value
+	less than 1, Git will use as many threads as the number of logical cores
 	available. This setting and `checkout.thresholdForParallelism` affect
 	all commands that perform checkout. E.g. checkout, clone, reset,
 	sparse-checkout, etc.
