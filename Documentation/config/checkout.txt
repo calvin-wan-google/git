@@ -24,8 +24,8 @@ checkout.guess::
 
 checkout.workers::
 	Specifies the number of threads to spawn when updating the working tree.
-	If unset or set to 1, Git will execute sequentially. If set to a value
-	less than 1, Git will use as many threads as the number of logical cores
+	If unset or set to 1, Git will execute sequentially. If set to 0,
+	Git will use as many threads as the number of logical cores
 	available. This setting and `checkout.thresholdForParallelism` affect
 	all commands that perform checkout. E.g. checkout, clone, reset,
 	sparse-checkout, etc.

@@ -2786,10 +2786,16 @@ int git_config_get_index_threads(int *dest)
 	}
 
 	if (!git_config_get_bool_or_int("index.threads", &is_bool, &val)) {
-		if (is_bool)
+		if (is_bool) {
 			*dest = val ? 0 : 1;
-		else
+		} else if (val < 0) {
+			warning(_("index.threads should not be negative; "
+				  "defaulting to number of logical cores "
+				  "available"));
+			*dest = 0;
+		} else {
 			*dest = val;
+		}
 		return 0;
 	}
 

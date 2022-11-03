@@ -3168,7 +3168,8 @@ static int git_pack_config(const char *k, const char *v, void *cb)
 	if (!strcmp(k, "pack.threads")) {
 		delta_search_threads = git_config_int(k, v);
 		if (delta_search_threads < 0)
-			die(_("invalid number of threads specified (%d)"),
+			die(_("invalid number of threads specified (%d) for "
+			    "pack.threads"),
 			    delta_search_threads);
 		if (!HAVE_THREADS && delta_search_threads != 1) {
 			warning(_("no threads support, ignoring %s"), k);

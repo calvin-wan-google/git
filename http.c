@@ -304,6 +304,9 @@ static int http_options(const char *var, const char *value, void *cb)
 	}
 	if (!strcmp("http.maxrequests", var)) {
 		max_requests = git_config_int(var, value);
+		if (max_requests < 0)
+			warning(_("http.maxRequests should not be negative; "
+				  "defaulting to %i"), DEFAULT_MAX_REQUESTS);
 		return 0;
 	}
 	if (!strcmp("http.lowspeedlimit", var)) {

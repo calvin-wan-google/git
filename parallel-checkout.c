@@ -52,6 +52,10 @@ void get_parallel_checkout_configs(int *num_workers, int *threshold)
 	if (git_config_get_int("checkout.workers", num_workers))
 		*num_workers = DEFAULT_NUM_WORKERS;
 	else if (*num_workers < 1)
+		if (*num_workers < 0)
+			warning(_("checkout.workers should not be negative; "
+				  "defaulting to number of logical cores "
+				  "available"));
 		*num_workers = online_cpus();
 
 	if (git_config_get_int("checkout.thresholdForParallelism", threshold))
