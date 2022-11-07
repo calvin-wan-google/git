@@ -2802,6 +2802,52 @@ int git_config_get_index_threads(int *dest)
 	return 1;
 }
 
+#define DEFAULT_CORE_JOBS 8
+#define DEFAULT_CORE_JOBS_IOBOUND 4
+#define DEFAULT_CORE_JOBS_CPUBOUND online_cpus()
+
+int git_config_get_core_jobs(int *dest)
+{
+	if (!git_config_get_int("core.jobs", dest)) {
+		if (*dest < 0)
+			die (_("core.jobs should not be negative"));
+		return 0;
+	} else {
+		*dest = DEFAULT_CORE_JOBS;
+	}
+	return 1;
+}
+
+int git_config_get_core_jobs_iobound(int *dest)
+{
+	if (!git_config_get_int("core.jobs.iobound", dest)) {
+		if (*dest < 0)
+			die (_("core.jobs.IOBound should not be negative"));
+		return 0;
+	} else if (!git_config_get_core_jobs(dest)) {
+		return 1;
+	} else {
+		*dest = DEFAULT_CORE_JOBS_IOBOUND;
+	}
+	return 1;
+}
+
+int git_config_get_core_jobs_cpubound(int *dest)
+{
+	if (!git_config_get_int("core.jobs.cpubound", dest)) {
+		if (*dest < 0)
+			die (_("core.jobs.CPUBound should not be negative"));
+		return 0;
+	} else if (!git_config_get_core_jobs(dest)) {
+		return 1;
+	} else {
+		*dest = DEFAULT_CORE_JOBS_CPUBOUND;
+	}
+	return 1;
+}
+
+
+
 NORETURN
 void git_die_config_linenr(const char *key, const char *filename, int linenr)
 {
