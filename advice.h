@@ -13,7 +13,6 @@ struct string_list;
  * Call advise_if_enabled to print your advice.
  */
  enum advice_type {
-	ADVICE_ADD_EMBEDDED_REPO,
 	ADVICE_ADD_EMPTY_PATHSPEC,
 	ADVICE_ADD_IGNORED_FILE,
 	ADVICE_AM_WORK_DIR,
