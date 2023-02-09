@@ -128,9 +128,11 @@ static void cache_put_path(struct submodule_cache *cache,
 	unsigned int hash = hash_oid_string(&submodule->gitmodules_oid,
 					    submodule->path);
 	struct submodule_entry *e = xmalloc(sizeof(*e));
+	struct hashmap_entry *replaced;
 	hashmap_entry_init(&e->ent, hash);
 	e->config = submodule;
-	hashmap_put(&cache->for_path, &e->ent);
+	replaced = hashmap_put(&cache->for_path, &e->ent);
+	free(replaced);
 }
 
 static void cache_remove_path(struct submodule_cache *cache,
