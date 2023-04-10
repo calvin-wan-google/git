@@ -5,7 +5,7 @@
 #include "object-store.h"
 #include "packfile.h"
 #include "trace2.h"
-#include "config.h"
+#include "parse.h"
 #include "midx.h"
 #include "csum-file.h"
 

@@ -7,7 +7,7 @@
  */
 
 #include "cache.h"
-#include "config.h"
+#include "parse.h"
 #include "environment.h"
 #include "exec-cmd.h"
 #include "attr.h"
