@@ -5,7 +5,15 @@
  */
 #include "git-compat-util.h"
 #include "gettext.h"
+
+#ifdef GIT_STD_LIB
+#undef trace2_cmd_name
+#undef trace2_cmd_error_va
+#define trace2_cmd_name(x) 
+#define trace2_cmd_error_va(x, y)
+#else
 #include "trace2.h"
+#endif
 
 static void vreportf(const char *prefix, const char *err, va_list params)
 {

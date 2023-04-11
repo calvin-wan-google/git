@@ -2162,6 +2162,11 @@ ifdef FSMONITOR_OS_SETTINGS
 	COMPAT_OBJS += compat/fsmonitor/fsm-path-utils-$(FSMONITOR_OS_SETTINGS).o
 endif
 
+ifdef GIT_STD_LIB
+	BASIC_CFLAGS += -DGIT_STD_LIB
+	BASIC_CFLAGS += -DNO_GETTEXT
+endif
+
 ifeq ($(TCLTK_PATH),)
 NO_TCLTK = NoThanks
 endif
@@ -3654,7 +3659,7 @@ clean: profile-clean coverage-clean cocciclean
 	$(RM) po/git.pot po/git-core.pot
 	$(RM) git.res
 	$(RM) $(OBJECTS)
-	$(RM) $(LIB_FILE) $(XDIFF_LIB) $(REFTABLE_LIB) $(REFTABLE_TEST_LIB)
+	$(RM) $(LIB_FILE) $(XDIFF_LIB) $(REFTABLE_LIB) $(REFTABLE_TEST_LIB) $(STD_LIB_FILE)
 	$(RM) $(ALL_PROGRAMS) $(SCRIPT_LIB) $(BUILT_INS) $(OTHER_PROGRAMS)
 	$(RM) $(TEST_PROGRAMS)
 	$(RM) $(FUZZ_PROGRAMS)
@@ -3834,3 +3839,24 @@ $(FUZZ_PROGRAMS): all
 		$(XDIFF_OBJS) $(EXTLIBS) git.o $@.o $(LIB_FUZZING_ENGINE) -o $@
 
 fuzz-all: $(FUZZ_PROGRAMS)
+
+### Libified Git rules
+
+# git-std-lib
+# `make git-std-lib GIT_STD_LIB=YesPlease`
+STD_LIB = git-std-lib.a
+
+GIT_STD_LIB_OBJS += abspath.o
+GIT_STD_LIB_OBJS += ctype.o
+GIT_STD_LIB_OBJS += date.o
+GIT_STD_LIB_OBJS += hex-ll.o
+GIT_STD_LIB_OBJS += parse.o
+GIT_STD_LIB_OBJS += strbuf.o
+GIT_STD_LIB_OBJS += usage.o
+GIT_STD_LIB_OBJS += utf8.o
+GIT_STD_LIB_OBJS += wrapper.o
+
+$(STD_LIB): $(GIT_STD_LIB_OBJS) $(COMPAT_OBJS)
+	$(QUIET_AR)$(RM) $@ && $(AR) $(ARFLAGS) $@ $^
+
+git-std-lib: $(STD_LIB)
