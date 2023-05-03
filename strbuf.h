@@ -1,6 +1,15 @@
 #ifndef STRBUF_H
 #define STRBUF_H
 
+/*
+ * NOTE FOR STRBUF DEVELOPERS
+ *
+ * The objects that this API interacts with should be limited to other
+ * primitives, however, there are older functions in here that interact
+ * with non-primitive objects which should eventually be moved out or
+ * refactored.
+ */
+
 struct string_list;
 
 /**
