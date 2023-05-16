@@ -214,7 +214,7 @@ int finalize_colopts(unsigned int *colopts, int stdout_is_tty)
 		if (stdout_is_tty < 0)
 			stdout_is_tty = isatty(1);
 		*colopts &= ~COL_ENABLE_MASK;
-		if (stdout_is_tty || pager_in_use())
+		if (stdout_is_tty || git_env_bool("GIT_PAGER_IN_USE", 0))
 			*colopts |= COL_ENABLED;
 	}
 	return 0;

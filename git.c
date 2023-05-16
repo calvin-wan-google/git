@@ -131,7 +131,7 @@ static void commit_pager_choice(void)
 
 void setup_auto_pager(const char *cmd, int def)
 {
-	if (use_pager != -1 || pager_in_use())
+	if (use_pager != -1 || git_env_bool("GIT_PAGER_IN_USE", 0))
 		return;
 	use_pager = check_pager_config(cmd);
 	if (use_pager == -1)

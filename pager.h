@@ -5,7 +5,6 @@ struct child_process;
 
 const char *git_pager(int stdout_is_tty);
 void setup_pager(void);
-int pager_in_use(void);
 int term_columns(void);
 void term_clear_line(void);
 int decimal_width(uintmax_t);

@@ -82,7 +82,7 @@ struct line_opt_callback_data {
 
 static int session_is_interactive(void)
 {
-	return isatty(1) || pager_in_use();
+	return isatty(1) || git_env_bool("GIT_PAGER_IN_USE", 0);
 }
 
 static int auto_decoration_style(void)

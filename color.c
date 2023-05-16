@@ -388,7 +388,7 @@ static int check_auto_color(int fd)
 	int *is_tty_p = fd == 1 ? &color_stdout_is_tty : &color_stderr_is_tty;
 	if (*is_tty_p < 0)
 		*is_tty_p = isatty(fd);
-	if (*is_tty_p || (fd == 1 && pager_in_use() && pager_use_color)) {
+	if (*is_tty_p || (fd == 1 && git_env_bool("GIT_PAGER_IN_USE", 0) && pager_use_color)) {
 		if (!is_terminal_dumb())
 			return 1;
 	}
