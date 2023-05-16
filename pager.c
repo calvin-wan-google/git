@@ -149,11 +149,6 @@ void setup_pager(void)
 	atexit(wait_for_pager_atexit);
 }
 
-int pager_in_use(void)
-{
-	return git_env_bool("GIT_PAGER_IN_USE", 0);
-}
-
 /*
  * Return cached value (if set) or $COLUMNS environment variable (if
  * set and positive) or ioctl(1, TIOCGWINSZ).ws_col (if positive),
