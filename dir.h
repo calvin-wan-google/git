@@ -5,6 +5,7 @@
 #include "pathspec.h"
 #include "statinfo.h"
 #include "strbuf.h"
+#include "repository.h"
 
 /**
  * The directory listing API is used to enumerate paths in the work tree,

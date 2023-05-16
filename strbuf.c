@@ -1,7 +1,6 @@
 #include "git-compat-util.h"
 #include "gettext.h"
 #include "hex.h"
-#include "repository.h"
 #include "strbuf.h"
 #include "string-list.h"
 #include "utf8.h"
