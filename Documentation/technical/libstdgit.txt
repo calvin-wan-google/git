@@ -1,0 +1,185 @@
+= Git Standard Library
+
+The Git Standard Library intends to serve as the foundational library
+and root dependency that other libraries in Git will be built off of.
+That is to say, suppose we have libraries X and Y; a user that wants to
+use X and Y would need to include X, Y, and this Git Standard Library.
+This does not mean that the Git Standard Library will be the only
+possible root dependency in the future, but rather the most significant
+and widely used one. Git itself is also built off of the Git Standard
+Library.
+
+== Dependency graph in libified Git
+
+Before the introduction of the Git Standard Library, all objects defined
+in the Git library are compiled and archived into a single file,
+libgit.a, which git.o linked against along with common-main.o and other
+external dependencies. In other words, the Git executable has
+dependencies on libgit.a and a couple of external libraries. The
+libfication of Git slightly alters this build flow by separating out
+libgit.a into libgit.a and libstdgit.a. 
+
+With our current method of building Git, the dependency graph can be
+visualized as such:
+
+	Git
+	 /\
+	/  \
+       /    \
+  libgit.a   ext deps
+
+Potential libraries will be separated out from libgit.a and have
+libgit.a depend on them, which would possibly look like:
+
+		Git
+		/\
+	       /  \
+	      /    \
+	  libgit.a  ext deps
+	     /\
+	    /  \
+	   /    \
+object-store.a  (other lib)
+      |        /
+      |       /
+      |      /
+      |     /
+      |    /
+      |   /
+      |  /
+libstdgit.a
+
+Instead of containing all objects in Git, libgit.a would contain objects
+that are not built by the libraries it links against. Consequently, if
+someone wanted a custom build of Git with a custom implementation of the
+object store, they would only have to swap out object-store.a rather
+than do a hard fork of Git.
+
+== Rationale behind Git Standard Library
+
+The rationale behind the selected object files in the Git Standard
+Library is the result of two observations within the Git
+codebase:
+  1. every file includes git-compat-util.h which defines functions
+     in a couple of different files
+  2. wrapper.c and usage.c have difficult-to-separate circular
+     dependencies with each other and other files.
+
+=== Ubiquity of git-compat-util.h and circular dependencies
+
+Every file in the Git codebase includes git-compat-util.h. It serves as
+"a compatibility aid that isolates the knowledge of platform specific
+inclusion order and what feature macros to define before including which
+system header" (Junio[1]). Since every file includes git-compat-util.h,
+and git-compat-util.h includes wrapper.h and usage.h, it would make
+sense for wrapper.c and usage.c to be a part of the root library. They
+have difficult to separate circular dependencies with each other so it
+would impractical for them to be independent libraries. Wrapper.c has
+dependencies on parse.c, abspath.c, strbuf.c, which in turn also have
+dependencies on usage.c and wrapper.c - more circular dependencies.
+
+=== Tradeoff between swappability and refactoring
+
+From the above dependency graph, it is possible that libstdgit.a could
+be many smaller libraries rather than a single library. So why choose a
+single library when multiple libraries can be individually easier to
+swap and are more modular? A single library requires less work to
+separate out circular dependencies within itself so it becomes a
+tradeoff question between work and reward. While there may be a point in
+the future where a file like usage.c would want its own library so that
+someone can have custom die() or error(), the work required to refactor
+out the circular dependencies in some files would be enormous due to
+their ubiquity so therefore the tradeoff does not seem worth it
+currently. Additionally, the refactor could happen in the future 
+and the library API could be changed if needed since library APIs are
+temporarily subject to change.
+
+=== Reuse of compatibility functions in git-compat-util.h
+
+Most functions defined in git-compat-util.h are implemented in compat/
+and have dependencies limited to strbuf.h and wrapper.h so they can be
+easily included in libstdgit.a, which as a root dependency means that
+higher level libraries do not have to worry about compatibility files in
+compat/. The rest of the functions defined in git-compat-util.h are
+either implemented in top level files or are stubbed out if their
+implementation is not in libstdgit.a.
+
+=== Rationale summary
+
+The Git Standard Library allows the libification ball rolling to start
+rolling sooner with other libraries in Git. By not spending many more
+months attempting to refactor difficult circular dependencies and
+instead spending that time getting to a state where swapping a library
+out such as config or object store is possible, he viability of Git
+libification can be proved on a much faster time scale. Additionally the
+code cleanups that have happened so far have been minor and beneficial
+for the codebase. It is probable that making large movements would
+negatively affect code clarity.
+
+== Git Standard Library boundary
+
+While this documentation has described some useful heuristics for
+identifying potential libstdgit.a candidates, a standard library
+should have a more precise definition for what belongs in it.
+
+ - Low-level files (aka operates only on other primitive types) that are
+   used everywhere within the codebase (wrapper.c, usage.c, strbuf.c)
+   - Dependencies that are low-level and widely used
+     (abspath.c, date.c, hex-ll.c, parse.c, utf8.c)
+ - low-level git/* files with functions defined in git-compat-util.h
+   (ctype.c)
+ - compat/*
+
+There are other files that might fit this definition, but that does not
+mean it should belong in libstdgit.a. Those files should start as
+their own separate library since any file added to libstdgit.a loses
+its flexibility of being easily swappable.
+
+Wrapper.c and usage.c have dependencies on pager and trace2 that are
+possible to remove at the cost of sacrificing the ability for standard Git
+to be able to trace functions in those files and other files in libstdgit.a.
+In order for libstdgit.a to compile with those dependencies, stubbed out
+versions of those files are implemented and swapped in during compilation time
+(see STUB_LIB_OBJS in the Makefile).
+
+== Files inside of Git Standard Library
+
+The set of files in libstdgit.a can be found in STD_LIB_OBJS and COMPAT_OBJS
+in the Makefile.
+
+When these files are compiled together with the files in STUB_LIB_OBJS (or
+user-provided files that provide the same functions), they form a complete
+library.
+
+== External Interface
+
+The “internal" interface refers to functions exposed to Git itself
+whereas the "external" interface of this library refers to functions
+exposed to non-Git consumers and is located in external/libstdgit.h. The
+need for a separation of an internal and external interface can be found
+here[2]. As for what belongs in the external interface for libstdgit.a,
+strbufs, path functions, and hex are too generic and not Git specific
+enough to be included in a Git library. Usage or wrapper functions don't
+make sense to be included either. The only functions that should be
+exposed are the Git specific value parsing functions in parse.[ch].
+Other functions can always be exposed in the future if the above is
+insufficient.
+
+== Pitfalls
+
+There are a small amount of files under compat/* that have dependencies
+not inside of libstdgit.a. While those functions are not called on
+Linux, other OSes might call those problematic functions. This is
+unlikely to be a major problem, but rather an observation that
+libification in general may also require some minor compatibility work
+in the future.
+
+== Testing
+
+Unit tests should catch any breakages caused by changes to files in
+libstdgit.a (i.e. introduction of a out of scope dependency) and new
+functions introduced to libstdgit.a will require unit tests written
+for them.
+
+[1] https://lore.kernel.org/git/xmqqwn17sydw.fsf@gitster.g/
+[2] https://lore.kernel.org/git/CAFySSZAB09QB7U6UxntK2jRJF0df5R7YGnnLSsYc9MYhHsBhWA@mail.gmail.com/
