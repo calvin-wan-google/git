@@ -861,20 +861,6 @@ TEST_BUILTINS_OBJS += test-windows-named-pipe.o
 TEST_BUILTINS_OBJS += test-write-cache.o
 TEST_BUILTINS_OBJS += test-xml-encode.o
 
-# Do not add more tests here unless they have extra dependencies. Add
-# them in TEST_BUILTINS_OBJS above.
-TEST_PROGRAMS_NEED_X += test-fake-ssh
-TEST_PROGRAMS_NEED_X += $(info tpnxnpg=$(NO_POSIX_GOODIES))test-tool
-ifndef NO_POSIX_GOODIES
-TEST_PROGRAMS_NEED_X += test-stdlib
-MY_VAR = not_else
-$(info insideifndefnpg=$(NO_POSIX_GOODIES))
-else
-MY_VAR = else
-endif
-
-TEST_PROGRAMS = $(info tptpnx=$(TEST_PROGRAMS_NEED_X) myvar=$(MY_VAR))$(patsubst %,t/helper/%$X,$(TEST_PROGRAMS_NEED_X))
-
 # List built-in command $C whose implementation cmd_$C() is not in
 # builtin/$C.o but is linked in as part of some other command.
 BUILT_INS += $(patsubst builtin/%.o,git-%$X,$(BUILTIN_OBJS))
@@ -1437,6 +1423,21 @@ include config.mak.uname
 ifdef DEVELOPER
 include config.mak.dev
 endif
+
+# Do not add more tests here unless they have extra dependencies. Add
+# them in TEST_BUILTINS_OBJS above.
+TEST_PROGRAMS_NEED_X += test-fake-ssh
+TEST_PROGRAMS_NEED_X += $(info tpnxnpg=$(NO_POSIX_GOODIES))test-tool
+ifndef NO_POSIX_GOODIES
+TEST_PROGRAMS_NEED_X += test-stdlib
+MY_VAR = not_else
+$(info insideifndefnpg=$(NO_POSIX_GOODIES))
+else
+MY_VAR = else
+endif
+
+TEST_PROGRAMS = $(info tptpnx=$(TEST_PROGRAMS_NEED_X) myvar=$(MY_VAR))$(patsubst %,t/helper/%$X,$(TEST_PROGRAMS_NEED_X))
+
 
 # what 'all' will build and 'install' will install in gitexecdir,
 # excluding programs for built-in commands
